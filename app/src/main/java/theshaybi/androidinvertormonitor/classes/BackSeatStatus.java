@@ -18,7 +18,7 @@ public class BackSeatStatus{
     public static String IMEI                        = "";
     public static String pimBatteryLevel             = "0";
     public static String ingenicoBatteryLevel        = "0";
-    public static String serverIP                    = Common.reteriveIpAddress();
+    public static String serverIP                    = ""; //Common.reteriveIpAddress(); Todo
     public static int    paramsY                     = -111;
     public static Long   updatedTimeStamp            = System.currentTimeMillis();
 

@@ -1,41 +1,22 @@
 package theshaybi.androidinvertormonitor;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.Application;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.ApplicationInfo;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
-import android.net.wifi.WifiManager;
-import android.os.AsyncTask;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
-
-import java.net.InetAddress;
-import java.net.NetworkInterface;
-import java.net.SocketException;
-import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Timer;
-import java.util.TimerTask;
 
-import theshaybi.androidinvertormonitor.classes.BackSeatStatus;
 import theshaybi.androidinvertormonitor.classes.Constants;
 import theshaybi.androidinvertormonitor.interfaces.CallbackResponseListener;
-import theshaybi.androidinvertormonitor.util.HttpVolleyRequests;
 
 public class Common extends Application {
     public static       SharedPreferences             userInfoPrefs;
@@ -72,7 +53,7 @@ public class Common extends Application {
             registeredVersionCode = userInfoPrefs.getInt("APP_VERSION_CODE", Integer.MIN_VALUE);
 
         }//synchronized
-        String regid = getRegistrationId(this);
+        //String regid = getRegistrationId(this);
 
 //        if (regid.isEmpty())
 //            registerFCMInBackground(getResources().getString(R.string.google_app_id));
@@ -157,32 +138,28 @@ public class Common extends Application {
 
     public static void showCustomToast(final int resId, final String toastMsg, final Boolean isError) {
         try {
-            currentActivity.runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
+            currentActivity.runOnUiThread(() -> {
+                LayoutInflater inflater = currentActivity.getLayoutInflater();
+                View layout = inflater.inflate(R.layout.waitlayout, currentActivity.findViewById(R.id.toast_layout_root));
 
-                    LayoutInflater inflater = currentActivity.getLayoutInflater();
-                    View layout = inflater.inflate(R.layout.waitlayout, (ViewGroup) currentActivity.findViewById(R.id.toast_layout_root));
+                if (isError)
+                    layout.setBackgroundResource(R.drawable.mars_text_view_pale_background);
 
-                    if (isError)
-                        layout.setBackgroundResource(R.drawable.mars_text_view_pale_background);
+                layout.findViewById(R.id.customprogress_progress).setVisibility(View.GONE);
 
-                    layout.findViewById(R.id.customprogress_progress).setVisibility(View.GONE);
+                TextView message = layout.findViewById(R.id.customprogress_text);
+                if (toastMsg != null && toastMsg.length() > 0) {
+                    message.setText(toastMsg);
+                } else if (resId > 0)
+                    message.setText(resId);
+                else
+                    message.setText("");
 
-                    TextView message = (TextView) layout.findViewById(R.id.customprogress_text);
-                    if (toastMsg != null && toastMsg.length() > 0) {
-                        message.setText(toastMsg);
-                    } else if (resId > 0)
-                        message.setText(resId);
-                    else
-                        message.setText("");
-
-                    Toast toast = new Toast(currentContext);
-                    toast.setDuration(Toast.LENGTH_SHORT);
-                    toast.setView(layout);
-                    if (message.length() > 0)
-                        toast.show();
-                }
+                Toast toast = new Toast(currentContext);
+                toast.setDuration(Toast.LENGTH_SHORT);
+                toast.setView(layout);
+                if (message.length() > 0)
+                    toast.show();
             });
         } catch (Exception e) {
             e.printStackTrace();
@@ -277,6 +254,4 @@ public class Common extends Application {
 //    public static String reteriveIpAddress() {
 //        return pref.getString("sdhsUrl", "");
 //    }
-
-
 }
