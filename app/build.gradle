@@ -28,13 +28,13 @@ android {
         targetCompatibility JavaVersion.VERSION_1_8
     }
 
-    buildFeatures {
+    /*buildFeatures {
         viewBinding = true
-    }
+    }*/
 }
 
 dependencies {
-    def nav_version = "2.4.1"
+    def nav_version = "2.4.2"
 
     implementation 'androidx.appcompat:appcompat:1.4.1'
     implementation 'com.google.android.material:material:1.5.0'
@@ -50,6 +50,10 @@ dependencies {
     
     implementation 'androidx.navigation:navigation-fragment:2.4.2'
     implementation 'androidx.navigation:navigation-ui:2.4.2'
+
+    //Guages
+    implementation 'com.github.Gruzer:simple-gauge-android:0.3.1'
+    implementation 'com.github.anastr:speedviewlib:1.5.5'
 
     // Kotlin
     implementation("androidx.navigation:navigation-fragment-ktx:$nav_version")

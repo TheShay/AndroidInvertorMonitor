@@ -128,14 +128,6 @@ class MainActivity : AppCompatActivity() {
         return navController.navigateUp() || super.onSupportNavigateUp()
     }
 
-    fun showScreenOne(view: View?) {
-        startActivity(Intent(this, ScreenOneActivity::class.java))
-    }
-
-    fun showScreenTwo(view: View?) {
-        startActivity(Intent(this, ScreenTwoActivity::class.java))
-    }
-
     fun startServiceWithIcabbi(view: View?) {
         if (Build.VERSION.SDK_INT < 23 || Settings.canDrawOverlays(this@MainActivity)) startBannerService()
         Timer().schedule(object : TimerTask() {

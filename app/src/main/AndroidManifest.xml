@@ -34,14 +34,6 @@
             </intent-filter>
         </receiver>
         <activity
-            android:name=".ScreenTwoActivity"
-            android:exported="false"
-            android:screenOrientation="landscape"/>
-        <activity
-            android:name=".ScreenOneActivity"
-            android:exported="false"
-            android:screenOrientation="landscape"/>
-        <activity
             android:name=".MainActivity"
             android:exported="true">
             <intent-filter>
