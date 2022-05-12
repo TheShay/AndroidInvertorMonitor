@@ -19,24 +19,24 @@ import theshaybi.androidinvertormonitor.classes.Constants;
 import theshaybi.androidinvertormonitor.interfaces.CallbackResponseListener;
 
 public class Common extends Application {
-    public static       SharedPreferences             userInfoPrefs;
-    public static       String                        FCM_ID;
-    public static       String                        SENDER_ID               = "";
-    public static       Context                       currentContext;
-    public static       Activity                      currentActivity;
-    public static       SharedPreferences             pref;
-    public static       Map<String, IMessageListener> msg_listeners           = new HashMap<>();
-    public static       String                        appVersion              = "";
-    public static       int                           currentVersionCode      = 0;
-    public static       int                           registeredVersionCode   = 0;
-    public static final String                        SERVER_IP               = "";
-    public static BluetoothAdapter         mBluetoothAdapter            = null;
-    public static BluetoothDevice          taxiMeter;
-    public static BannerBluetooth bannerBluetooth              = null;
+    public static SharedPreferences userInfoPrefs;
+    public static String FCM_ID;
+    public static String SENDER_ID = "";
+    public static Context currentContext;
+    public static Activity currentActivity;
+    public static SharedPreferences pref;
+    public static Map<String, IMessageListener> msg_listeners = new HashMap<>();
+    public static String appVersion = "";
+    public static int currentVersionCode = 0;
+    public static int registeredVersionCode = 0;
+    public static final String SERVER_IP = "";
+    public static BluetoothAdapter mBluetoothAdapter = null;
+    public static BluetoothDevice taxiMeter;
+    public static BannerBluetooth bannerBluetooth = null;
 
-    public static BluetoothDevice          backseatDevice               = null;
-    public static CallbackResponseListener currentCallbackListener      = null;
-    public static boolean                  isAppOnFront;
+    public static BluetoothDevice backseatDevice = null;
+    public static CallbackResponseListener currentCallbackListener = null;
+    public static boolean isAppOnFront;
 
     @Override
     public void onCreate() {
