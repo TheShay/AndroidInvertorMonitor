@@ -4,4 +4,8 @@
     <string name="which_screen_do_you_want_to_view">Which screen do you want to view?</string>
     <string name="screen_1">Screen 1</string>
     <string name="screen_2">Screen 2</string>
+    <string name="No">No</string>
+    <string name="Yes">Yes</string>
+    <string name="Notification">Notification</string>
+    <string name="messages">Test Message</string>
 </resources>

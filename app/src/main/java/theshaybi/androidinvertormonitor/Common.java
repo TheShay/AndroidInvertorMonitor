@@ -251,7 +251,9 @@ public class Common extends Application {
 //        pref.edit().putString("sdhsUrl", ipAddress).apply();
 //    }
 
-//    public static String reteriveIpAddress() {
-//        return pref.getString("sdhsUrl", "");
-//    }
+    public static String reteriveIpAddress() {
+        return pref.getString("sdhsUrl", "");
+    }
+
+
 }

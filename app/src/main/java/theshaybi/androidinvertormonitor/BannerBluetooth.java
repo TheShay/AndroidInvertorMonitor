@@ -47,7 +47,7 @@ public class BannerBluetooth extends Thread {
     /*---------------------------------------------------------------connectToBluetooth-------------------------------------------------------------------*/
     public BannerBluetooth(BluetoothDevice device) {
 
-        this.setName("BannerBluetooth");
+        this.setName("BlueTooth");
         mmDevice = device;
 
     }
@@ -60,7 +60,7 @@ public class BannerBluetooth extends Thread {
             BluetoothAdapter.getDefaultAdapter().cancelDiscovery();
         } catch (Exception e) {
             for (IMessageListener list : Common.msg_listeners.values())
-                list.exception("[exception in Meter_bluetooth][connect][" + e.getLocalizedMessage() + "]");
+                list.exception("[exception in BlueTooth][connect][" + e.getLocalizedMessage() + "]");
         }
 
         try {
@@ -73,7 +73,7 @@ public class BannerBluetooth extends Thread {
                 mmServerSocket = null;
             }
         } catch (IOException e) {
-            Log.e("BannerBluetooth", "mmSocket.close() method failed ", e);
+            Log.e("BlueTooth", "mmSocket.close() method failed ", e);
         }
 
         try {
@@ -100,9 +100,9 @@ public class BannerBluetooth extends Thread {
         } catch (IOException e) {
             isConnectionAlive = isreceive = false;
             bt_callback.onConnectionStatusChange(false, mmDevice);
-            Log.e("BannerBluetooth", "Socket's listen() method failed", e);
+            Log.e("BlueTooth", "Socket's listen() method failed", e);
         } catch (Exception e) {
-            Log.e("BannerBluetooth", "Socket's listen() method failed", e);
+            Log.e("BlueTooth", "Socket's listen() method failed", e);
         }
     }
 
@@ -166,10 +166,10 @@ public class BannerBluetooth extends Thread {
     public void run() {
 
         try {
-            currentThread().setName("BannerBluetooth");
+            currentThread().setName("BlueTooth");
             accept();
         } catch (Exception e) {
-            LogExceptionMSG("[exception in BannerBluetooth][run][" + e.getLocalizedMessage() + "]");
+            LogExceptionMSG("[exception in BlueTooth][run][" + e.getLocalizedMessage() + "]");
         }
 
 
@@ -184,7 +184,7 @@ public class BannerBluetooth extends Thread {
                 // Read from the InputStream
                 bytes = reader.getMessage();
                 if (bytes != null) {
-                    Log.w(getClass().getSimpleName(), "Bytes from BackSeat <-- " + new String(bytes, "utf-8"));
+                    Log.w(getClass().getSimpleName(), "Bytes from BlueTooth <-- " + new String(bytes, "utf-8"));
                     byte[] newBuffer = new byte[bytes.length - 2];
                     System.arraycopy(bytes, 1, newBuffer, 0, bytes.length - 2);
                     JSONObject json = new JSONObject(new String(newBuffer));
@@ -193,9 +193,9 @@ public class BannerBluetooth extends Thread {
             } catch (IOException e) {
                 isConnectionAlive = isreceive = false;
                 bt_callback.onConnectionStatusChange(false, mmDevice);
-                LogExceptionMSG("[exception in BannerBluetooth][run][" + e.getLocalizedMessage() + "]");
+                LogExceptionMSG("[exception in BlueTooth][run][" + e.getLocalizedMessage() + "]");
             } catch (Exception e) {
-                LogExceptionMSG("[exception in BannerBluetooth][run][" + e.getLocalizedMessage() + "]");
+                LogExceptionMSG("[exception in BlueTooth][run][" + e.getLocalizedMessage() + "]");
             }
 
         }// while
@@ -207,9 +207,9 @@ public class BannerBluetooth extends Thread {
             }
         } catch (IOException e) {
             isConnectionAlive = isreceive = false;
-            LogExceptionMSG("[exception in BannerBluetooth][run][" + e.getLocalizedMessage() + "] IOException");
+            LogExceptionMSG("[exception in BlueTooth][run][" + e.getLocalizedMessage() + "] IOException");
         } catch (Exception re) {
-            LogExceptionMSG("[exception in BannerBluetooth][run][" + re.getLocalizedMessage() + "] ");
+            LogExceptionMSG("[exception in BlueTooth][run][" + re.getLocalizedMessage() + "] ");
         }
     }
 
