@@ -23,6 +23,15 @@ class FirstScreenFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         _binding?.apply {
+            progressBar.progress = 50
+            progressBar.max = 100
+
+            progressBar1.progress = 50
+            progressBar1.max = 100
+
+            progressBar2.progress = 50
+            progressBar2.max = 100
+
             //https://androidrepo.com/repo/anastr-SpeedView-android-android-ui-library
             // change speed to 140 Km/h
             imageSpeedometer.speedTo(140F)
