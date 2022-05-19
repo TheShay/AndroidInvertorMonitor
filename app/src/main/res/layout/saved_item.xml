@@ -2,11 +2,10 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:layout_margin="@dimen/_2sdp"
     android:background="@drawable/layout_border"
     android:gravity="center"
     android:layout_gravity="center"
-    android:padding="@dimen/_5sdp">
+    android:padding="@dimen/_1sdp">
 
     <TextView
         android:id="@+id/tv_pkr_saved_lbl"
