@@ -12,21 +12,30 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.ekn.gruzer.gaugelibrary.Range
+import com.github.mikephil.charting.components.Legend
+import com.github.mikephil.charting.components.Legend.LegendForm
 import com.github.mikephil.charting.components.LimitLine
 import com.github.mikephil.charting.components.LimitLine.LimitLabelPosition
 import com.github.mikephil.charting.components.XAxis
+import com.github.mikephil.charting.components.XAxis.XAxisPosition
 import com.github.mikephil.charting.components.YAxis
-import com.github.mikephil.charting.data.Entry
-import com.github.mikephil.charting.data.LineData
-import com.github.mikephil.charting.data.LineDataSet
+import com.github.mikephil.charting.components.YAxis.YAxisLabelPosition
+import com.github.mikephil.charting.data.*
+import com.github.mikephil.charting.formatter.IAxisValueFormatter
 import com.github.mikephil.charting.formatter.IFillFormatter
+import com.github.mikephil.charting.formatter.ValueFormatter
 import com.github.mikephil.charting.highlight.Highlight
+import com.github.mikephil.charting.interfaces.datasets.IBarDataSet
 import com.github.mikephil.charting.interfaces.datasets.ILineDataSet
 import com.github.mikephil.charting.listener.OnChartValueSelectedListener
 import com.github.mikephil.charting.utils.Utils
 import theshaybi.androidinvertormonitor.R
+import theshaybi.androidinvertormonitor.classes.Fill
 import theshaybi.androidinvertormonitor.databinding.FirstScreenFragmentBinding
+import theshaybi.androidinvertormonitor.util.DayAxisValueFormatter
+import theshaybi.androidinvertormonitor.util.MyAxisValueFormatter
 import theshaybi.androidinvertormonitor.util.MyMarkerView
+import theshaybi.androidinvertormonitor.util.XYMarkerView
 
 class FirstScreenFragment : Fragment(), OnChartValueSelectedListener {
     private var mViewModel: FirstScreenViewModel? = null
@@ -47,6 +56,8 @@ class FirstScreenFragment : Fragment(), OnChartValueSelectedListener {
 
         // set listeners
         _binding?.lineChart?.setOnChartValueSelectedListener(this)
+        _binding?.barChart?.setOnChartValueSelectedListener(this)
+
 
         _binding?.apply {
             progressBar.progress = 50
@@ -72,165 +83,294 @@ class FirstScreenFragment : Fragment(), OnChartValueSelectedListener {
         }
         setHalfGuage()
         lineChart()
+        barChart()
     }
 
     private fun lineChart() {
-        // // Chart Style // //
+        try {
+            // // Chart Style // //
 
-        _binding?.apply {
-            // background color
-            lineChart.setBackgroundColor(Color.WHITE)
+            _binding?.apply {
+                // background color
+                lineChart.setBackgroundColor(Color.WHITE)
 
-            // disable description text
-            lineChart.description.isEnabled = false
+                // disable description text
+                lineChart.description.isEnabled = false
 
-            // enable touch gestures
-            lineChart.setTouchEnabled(true)
+                // enable touch gestures
+                lineChart.setTouchEnabled(true)
 
-            lineChart.setDrawGridBackground(false)
+                lineChart.setDrawGridBackground(false)
 
-            // create marker to display box when values are selected
+                // create marker to display box when values are selected
 
-            // create marker to display box when values are selected
-            val mv = MyMarkerView(requireActivity(), R.layout.custom_marker_view)
+                // create marker to display box when values are selected
+                val mv = MyMarkerView(requireActivity(), R.layout.custom_marker_view)
 
-            // Set the marker to the chart
-            mv.chartView = lineChart
-            lineChart.marker = mv
+                // Set the marker to the chart
+                mv.chartView = lineChart
+                lineChart.marker = mv
 
-            // enable scaling and dragging
-            lineChart.isDragEnabled = true
-            lineChart.setScaleEnabled(true)
+                // enable scaling and dragging
+                lineChart.isDragEnabled = true
+                lineChart.setScaleEnabled(true)
 
-            // chart.setScaleXEnabled(true);
-            // chart.setScaleYEnabled(true);
+                // chart.setScaleXEnabled(true);
+                // chart.setScaleYEnabled(true);
 
-            // force pinch zoom along both axis
-            // chart.setScaleXEnabled(true);
-            // chart.setScaleYEnabled(true);
+                // force pinch zoom along both axis
+                // chart.setScaleXEnabled(true);
+                // chart.setScaleYEnabled(true);
 
-            // force pinch zoom along both axis
-            lineChart.setPinchZoom(true)
+                // force pinch zoom along both axis
+                lineChart.setPinchZoom(true)
+            }
+
+            // // Create Limit Lines // //
+            val llXAxis = LimitLine(9f, "Index 10")
+            llXAxis.lineWidth = 4f
+            llXAxis.enableDashedLine(10f, 10f, 0f)
+            llXAxis.labelPosition = LimitLabelPosition.RIGHT_BOTTOM
+            llXAxis.textSize = 10f
+            llXAxis.typeface = tfRegular
+
+            val upperLimit = LimitLine(150f, "Upper Limit")
+            upperLimit.lineWidth = 4f
+            upperLimit.enableDashedLine(10f, 10f, 0f)
+            upperLimit.labelPosition = LimitLabelPosition.RIGHT_TOP
+            upperLimit.textSize = 10f
+            upperLimit.typeface = tfRegular
+
+            val lowerLimit = LimitLine(-30f, "Lower Limit")
+            lowerLimit.lineWidth = 4f
+            lowerLimit.enableDashedLine(10f, 10f, 0f)
+            lowerLimit.labelPosition = LimitLabelPosition.RIGHT_BOTTOM
+            lowerLimit.textSize = 10f
+            lowerLimit.typeface = tfRegular
+
+            // // Y-Axis Style // //
+            val yAxis: YAxis? = _binding?.lineChart?.axisLeft
+
+            // disable dual axis (only use LEFT axis)
+            _binding?.lineChart?.axisRight?.isEnabled = false
+
+            // horizontal grid lines
+            yAxis?.enableGridDashedLine(10f, 10f, 0f)
+
+            // axis range
+            yAxis?.axisMaximum = 200f
+            yAxis?.axisMinimum = -50f
+
+
+            // X-Axis Style
+            val xAxis: XAxis = _binding?.lineChart?.xAxis!!
+
+            // vertical grid lines
+            xAxis.enableGridDashedLine(10f, 10f, 0f)
+
+
+            // draw limit lines behind data instead of on top
+            yAxis?.setDrawLimitLinesBehindData(true)
+            xAxis.setDrawLimitLinesBehindData(true)
+
+            // add limit lines
+            yAxis?.addLimitLine(upperLimit)
+            yAxis?.addLimitLine(lowerLimit)
+            //xAxis.addLimitLine(llXAxis);
+
+            setLineChartData(45, 180f)
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
-
-        // // Create Limit Lines // //
-        val llXAxis = LimitLine(9f, "Index 10")
-        llXAxis.lineWidth = 4f
-        llXAxis.enableDashedLine(10f, 10f, 0f)
-        llXAxis.labelPosition = LimitLabelPosition.RIGHT_BOTTOM
-        llXAxis.textSize = 10f
-        llXAxis.typeface = tfRegular
-
-        val upperLimit = LimitLine(150f, "Upper Limit")
-        upperLimit.lineWidth = 4f
-        upperLimit.enableDashedLine(10f, 10f, 0f)
-        upperLimit.labelPosition = LimitLabelPosition.RIGHT_TOP
-        upperLimit.textSize = 10f
-        upperLimit.typeface = tfRegular
-
-        val lowerLimit = LimitLine(-30f, "Lower Limit")
-        lowerLimit.lineWidth = 4f
-        lowerLimit.enableDashedLine(10f, 10f, 0f)
-        lowerLimit.labelPosition = LimitLabelPosition.RIGHT_BOTTOM
-        lowerLimit.textSize = 10f
-        lowerLimit.typeface = tfRegular
-
-        // // Y-Axis Style // //
-        val yAxis: YAxis? = _binding?.lineChart?.axisLeft
-
-        // disable dual axis (only use LEFT axis)
-        _binding?.lineChart?.axisRight?.isEnabled = false
-
-        // horizontal grid lines
-        yAxis?.enableGridDashedLine(10f, 10f, 0f)
-
-        // axis range
-        yAxis?.axisMaximum = 200f
-        yAxis?.axisMinimum = -50f
-
-
-        // X-Axis Style
-        val xAxis: XAxis = _binding?.lineChart?.xAxis!!
-
-        // vertical grid lines
-        xAxis.enableGridDashedLine(10f, 10f, 0f)
-
-
-        // draw limit lines behind data instead of on top
-        yAxis?.setDrawLimitLinesBehindData(true)
-        xAxis.setDrawLimitLinesBehindData(true)
-
-        // add limit lines
-        yAxis?.addLimitLine(upperLimit)
-        yAxis?.addLimitLine(lowerLimit)
-        //xAxis.addLimitLine(llXAxis);
-
-        setData(45, 180f)
     }
 
-    private fun setData(count: Int, range: Float) {
-        val values = ArrayList<Entry>()
-        for (i in 0 until count) {
-            val `val` = (Math.random() * range).toFloat() - 30
-            values.add(Entry(i.toFloat(), `val`, resources.getDrawable(R.drawable.star)))
-        }
-        var set1: LineDataSet
-        if (_binding?.lineChart?.data != null && _binding?.lineChart?.data?.dataSetCount!! > 0) {
-            set1 = _binding!!.lineChart.data.getDataSetByIndex(0) as LineDataSet
-            set1.values = values
-            set1.notifyDataSetChanged()
-            _binding?.lineChart?.data!!.notifyDataChanged()
-            _binding?.lineChart?.notifyDataSetChanged()
-        } else {
-            // create a dataset and give it a type
-            set1 = LineDataSet(values, "DataSet 1")
-            set1.setDrawIcons(false)
-
-            // draw dashed line
-            set1.enableDashedLine(10f, 5f, 0f)
-
-            // black lines and points
-            set1.color = Color.BLACK
-            set1.setCircleColor(Color.BLACK)
-
-            // line thickness and point size
-            set1.lineWidth = 1f
-            set1.circleRadius = 3f
-
-            // draw points as solid circles
-            set1.setDrawCircleHole(false)
-
-            // customize legend entry
-            set1.formLineWidth = 1f
-            set1.formLineDashEffect = DashPathEffect(floatArrayOf(10f, 5f), 0f)
-            set1.formSize = 15f
-
-            // text size of values
-            set1.valueTextSize = 9f
-
-            // draw selection line as dashed
-            set1.enableDashedHighlightLine(10f, 5f, 0f)
-
-            // set the filled area
-            set1.setDrawFilled(true)
-            set1.fillFormatter = IFillFormatter { dataSet, dataProvider -> _binding!!.lineChart.axisLeft.axisMinimum }
-
-            // set color of filled area
-            if (Utils.getSDKInt() >= 18) {
-                // drawables only supported on api level 18 and above
-                val drawable = ContextCompat.getDrawable(requireActivity(), R.drawable.fade_red)
-                set1.fillDrawable = drawable
-            } else {
-                set1.fillColor = Color.BLACK
+    private fun setLineChartData(count: Int, range: Float) {
+        try {
+            val values = ArrayList<Entry>()
+            for (i in 0 until count) {
+                val `val` = (Math.random() * range).toFloat() - 30
+                values.add(Entry(i.toFloat(), `val`, resources.getDrawable(R.drawable.star)))
             }
-            val dataSets = ArrayList<ILineDataSet>()
-            dataSets.add(set1) // add the data sets
+            val set1: LineDataSet
+            if (_binding?.lineChart?.data != null && _binding?.lineChart?.data?.dataSetCount!! > 0) {
+                set1 = _binding!!.lineChart.data.getDataSetByIndex(0) as LineDataSet
+                set1.values = values
+                set1.notifyDataSetChanged()
+                _binding?.lineChart?.data!!.notifyDataChanged()
+                _binding?.lineChart?.notifyDataSetChanged()
+            } else {
+                // create a dataset and give it a type
+                set1 = LineDataSet(values, "DataSet 1")
+                set1.setDrawIcons(false)
 
-            // create a data object with the data sets
-            val data = LineData(dataSets)
+                // draw dashed line
+                set1.enableDashedLine(10f, 5f, 0f)
 
-            // set data
-            _binding!!.lineChart.data = data
+                // black lines and points
+                set1.color = Color.BLACK
+                set1.setCircleColor(Color.BLACK)
+
+                // line thickness and point size
+                set1.lineWidth = 1f
+                set1.circleRadius = 3f
+
+                // draw points as solid circles
+                set1.setDrawCircleHole(false)
+
+                // customize legend entry
+                set1.formLineWidth = 1f
+                set1.formLineDashEffect = DashPathEffect(floatArrayOf(10f, 5f), 0f)
+                set1.formSize = 15f
+
+                // text size of values
+                set1.valueTextSize = 9f
+
+                // draw selection line as dashed
+                set1.enableDashedHighlightLine(10f, 5f, 0f)
+
+                // set the filled area
+                set1.setDrawFilled(true)
+                set1.fillFormatter = IFillFormatter { dataSet, dataProvider -> _binding!!.lineChart.axisLeft.axisMinimum }
+
+                // set color of filled area
+                if (Utils.getSDKInt() >= 18) {
+                    // drawables only supported on api level 18 and above
+                    val drawable = ContextCompat.getDrawable(requireActivity(), R.drawable.fade_red)
+                    set1.fillDrawable = drawable
+                } else {
+                    set1.fillColor = Color.BLACK
+                }
+                val dataSets = ArrayList<ILineDataSet>()
+                dataSets.add(set1) // add the data sets
+
+                // create a data object with the data sets
+                val data = LineData(dataSets)
+
+                // set data
+                _binding!!.lineChart.data = data
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
+    private fun barChart() {
+        try {
+            _binding?.apply {
+
+                barChart.setDrawBarShadow(false)
+                barChart.setDrawValueAboveBar(true)
+
+                barChart.description.isEnabled = false
+
+                // if more than 60 entries are displayed in the chart, no values will be
+                // drawn
+                barChart.setMaxVisibleValueCount(60)
+
+                // scaling can now only be done on x- and y-axis separately
+                barChart.setPinchZoom(false)
+
+                barChart.setDrawGridBackground(false)
+
+                // chart.setDrawYLabels(false);
+                val xAxisFormatter: IAxisValueFormatter = DayAxisValueFormatter(barChart)
+
+                val xAxis: XAxis = barChart.xAxis
+                xAxis.position = XAxisPosition.BOTTOM
+                xAxis.typeface = tfLight
+                xAxis.setDrawGridLines(false)
+                xAxis.granularity = 1f // only intervals of 1 day
+
+                xAxis.labelCount = 7
+                xAxis.valueFormatter = xAxisFormatter as ValueFormatter?
+
+                val custom: IAxisValueFormatter = MyAxisValueFormatter()
+
+                val leftAxis: YAxis = barChart.axisLeft
+                leftAxis.typeface = tfLight
+                leftAxis.setLabelCount(8, false)
+                leftAxis.valueFormatter = custom as ValueFormatter?
+                leftAxis.setPosition(YAxisLabelPosition.OUTSIDE_CHART)
+                leftAxis.spaceTop = 15f
+                leftAxis.axisMinimum = 0f // this replaces setStartAtZero(true)
+
+
+                val rightAxis: YAxis = barChart.axisRight
+                rightAxis.setDrawGridLines(false)
+                rightAxis.typeface = tfLight
+                rightAxis.setLabelCount(8, false)
+                rightAxis.valueFormatter = custom
+                rightAxis.spaceTop = 15f
+                rightAxis.axisMinimum = 0f // this replaces setStartAtZero(true)
+
+                val l: Legend = barChart.legend
+                l.verticalAlignment = Legend.LegendVerticalAlignment.BOTTOM
+                l.horizontalAlignment = Legend.LegendHorizontalAlignment.LEFT
+                l.orientation = Legend.LegendOrientation.HORIZONTAL
+                l.setDrawInside(false)
+                l.form = LegendForm.SQUARE
+                l.formSize = 9f
+                l.textSize = 11f
+                l.xEntrySpace = 4f
+
+                val mv = XYMarkerView(requireActivity(), xAxisFormatter)
+                mv.chartView = barChart // For bounds control
+
+                barChart.marker = mv // Set the marker to the chart
+                // chart.setDrawLegend(false);
+            }
+            setBarChartData(12, 50f)
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
+    private fun setBarChartData(count: Int, range: Float) {
+        val start = 1f
+        val values = ArrayList<BarEntry>()
+        var i = start.toInt()
+        while (i < start + count) {
+            val tempVal = (Math.random() * (range + 1)).toFloat()
+            if (Math.random() * 100 < 25) {
+                values.add(BarEntry(i.toFloat(), tempVal, resources.getDrawable(R.drawable.star)))
+            } else {
+                values.add(BarEntry(i.toFloat(), tempVal))
+            }
+            i++
+        }
+        val set1: BarDataSet
+        if (_binding?.barChart?.data != null && _binding?.barChart?.data?.dataSetCount!! > 0) {
+            set1 = _binding?.barChart?.data?.getDataSetByIndex(0) as BarDataSet
+            set1.values = values
+            _binding?.barChart?.data?.notifyDataChanged()
+            _binding?.barChart?.notifyDataSetChanged()
+        } else {
+            set1 = BarDataSet(values, "The year 2017")
+            set1.setDrawIcons(false)
+            val startColor1 = ContextCompat.getColor(requireContext(), android.R.color.holo_orange_light)
+            val startColor2 = ContextCompat.getColor(requireContext(), android.R.color.holo_blue_light)
+            val startColor3 = ContextCompat.getColor(requireContext(), android.R.color.holo_orange_light)
+            val startColor4 = ContextCompat.getColor(requireContext(), android.R.color.holo_green_light)
+            val startColor5 = ContextCompat.getColor(requireContext(), android.R.color.holo_red_light)
+            val endColor1 = ContextCompat.getColor(requireContext(), android.R.color.holo_blue_dark)
+            val endColor2 = ContextCompat.getColor(requireContext(), android.R.color.holo_purple)
+            val endColor3 = ContextCompat.getColor(requireContext(), android.R.color.holo_green_dark)
+            val endColor4 = ContextCompat.getColor(requireContext(), android.R.color.holo_red_dark)
+            val endColor5 = ContextCompat.getColor(requireContext(), android.R.color.holo_orange_dark)
+            val gradientFills: MutableList<Fill> = java.util.ArrayList<Fill>()
+            gradientFills.add(Fill(startColor1, endColor1))
+            gradientFills.add(Fill(startColor2, endColor2))
+            gradientFills.add(Fill(startColor3, endColor3))
+            gradientFills.add(Fill(startColor4, endColor4))
+            gradientFills.add(Fill(startColor5, endColor5))
+            //set1.fills = gradientFills
+            val dataSets = java.util.ArrayList<IBarDataSet>()
+            dataSets.add(set1)
+            val data = BarData(dataSets)
+            data.setValueTextSize(10f)
+            data.setValueTypeface(tfLight)
+            data.barWidth = 0.9f
+            _binding?.barChart?.data = data
         }
     }
 
