@@ -145,7 +145,8 @@
             android:id="@+id/line_chart"
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_weight="1.5" />
+            android:layout_weight="1.5"
+            android:background="@drawable/bar_chart_border" />
 
         <LinearLayout
             android:id="@+id/ll_layout4"
@@ -346,6 +347,7 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/_2sdp"
         android:orientation="horizontal"
         android:weightSum="3"
         app:layout_constraintLeft_toLeftOf="parent"
@@ -356,7 +358,8 @@
             android:id="@+id/bar_chart"
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_weight="1.5" />
+            android:layout_weight="1.5"
+            android:background="@drawable/bar_chart_border" />
 
         <LinearLayout
             android:id="@+id/ll_layout6"

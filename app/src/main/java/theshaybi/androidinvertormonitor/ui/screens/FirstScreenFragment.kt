@@ -294,7 +294,6 @@ class FirstScreenFragment : Fragment(), OnChartValueSelectedListener {
                 leftAxis.spaceTop = 15f
                 leftAxis.axisMinimum = 0f // this replaces setStartAtZero(true)
 
-
                 val rightAxis: YAxis = barChart.axisRight
                 rightAxis.setDrawGridLines(false)
                 rightAxis.typeface = tfLight
