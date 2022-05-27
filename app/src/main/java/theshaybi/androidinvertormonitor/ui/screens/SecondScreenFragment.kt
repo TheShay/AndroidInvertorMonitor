@@ -1,38 +1,108 @@
-package theshaybi.androidinvertormonitor.ui.screens;
+package theshaybi.androidinvertormonitor.ui.screens
 
-import androidx.lifecycle.ViewModelProvider;
+import android.graphics.Color
+import android.os.Bundle
+import android.util.Log
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
+import com.github.mikephil.charting.data.BarData
+import com.github.mikephil.charting.data.BarDataSet
+import com.github.mikephil.charting.data.BarEntry
+import com.github.mikephil.charting.data.Entry
+import com.github.mikephil.charting.highlight.Highlight
+import com.github.mikephil.charting.listener.OnChartValueSelectedListener
+import com.github.mikephil.charting.utils.ColorTemplate
+import theshaybi.androidinvertormonitor.databinding.SecondScreenFragmentBinding
 
-import android.os.Bundle;
+class SecondScreenFragment : Fragment(), OnChartValueSelectedListener {
+    private lateinit var _binding: SecondScreenFragmentBinding
+    private var mViewModel: SecondScreenViewModel? = null
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
+    // variable for our bar data.
+    var barData: BarData? = null
 
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
+    // variable for our bar data set.
+    var barDataSet: BarDataSet? = null
 
-import theshaybi.androidinvertormonitor.R;
+    // array list for storing entries.
+    private lateinit var barEntriesArrayList: ArrayList<BarEntry>
 
-public class SecondScreenFragment extends Fragment {
-
-    private SecondScreenViewModel mViewModel;
-
-    public static SecondScreenFragment newInstance() {
-        return new SecondScreenFragment();
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+        _binding = SecondScreenFragmentBinding.inflate(inflater, container, false)
+        return _binding.root
     }
 
-    @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
-                             @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.second_screen_fragment, container, false);
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        _binding.barChartSecond.setOnChartValueSelectedListener(this)
+        barChart()
     }
 
-    @Override
-    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-        mViewModel = new ViewModelProvider(this).get(SecondScreenViewModel.class);
+    private fun barChart() {
+        try {
+            _binding.apply {
+                // calling method to get bar entries.
+                getBarEntries()
+
+                // creating a new bar data set.
+                barDataSet = BarDataSet(barEntriesArrayList, "Geeks for Geeks")
+
+                // creating a new bar data and
+                // passing our bar data set.
+                barData = BarData(barDataSet)
+
+                // below line is to set data
+                // to our bar chart.
+                barChartSecond.data = barData
+
+                // adding color to our bar data set.
+                barDataSet!!.color = ColorTemplate.MATERIAL_COLORS[3]
+
+                // setting text color.
+                barDataSet!!.valueTextColor = Color.BLACK
+
+                // setting text size
+
+                // setting text size
+                barDataSet!!.valueTextSize = 16f
+                barChartSecond.description.isEnabled = false
+            }
+            //setBarChartData(12, 50f)
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
+
+    private fun getBarEntries() {
+        // creating a new array list
+        barEntriesArrayList = ArrayList()
+
+        // adding new entry to our array list with bar
+        // entry and passing x and y axis value to it.
+        barEntriesArrayList.add(BarEntry(1f, 4f))
+        barEntriesArrayList.add(BarEntry(2f, 6f))
+        barEntriesArrayList.add(BarEntry(3f, 8f))
+        barEntriesArrayList.add(BarEntry(4f, 2f))
+        barEntriesArrayList.add(BarEntry(5f, 4f))
+        barEntriesArrayList.add(BarEntry(6f, 1f))
+    }
+
+
+    override fun onActivityCreated(savedInstanceState: Bundle?) {
+        super.onActivityCreated(savedInstanceState)
+        mViewModel = ViewModelProvider(this).get(SecondScreenViewModel::class.java)
         // TODO: Use the ViewModel
     }
 
+    override fun onValueSelected(e: Entry?, h: Highlight?) {
+        TODO("Not yet implemented")
+    }
+
+    override fun onNothingSelected() {
+        Log.i("Nothing selected", "Nothing selected.")
+    }
 }

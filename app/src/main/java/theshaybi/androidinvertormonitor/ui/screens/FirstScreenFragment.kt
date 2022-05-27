@@ -12,36 +12,36 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.ekn.gruzer.gaugelibrary.Range
-import com.github.mikephil.charting.components.Legend
-import com.github.mikephil.charting.components.Legend.LegendForm
 import com.github.mikephil.charting.components.LimitLine
 import com.github.mikephil.charting.components.LimitLine.LimitLabelPosition
 import com.github.mikephil.charting.components.XAxis
-import com.github.mikephil.charting.components.XAxis.XAxisPosition
 import com.github.mikephil.charting.components.YAxis
-import com.github.mikephil.charting.components.YAxis.YAxisLabelPosition
 import com.github.mikephil.charting.data.*
-import com.github.mikephil.charting.formatter.IAxisValueFormatter
 import com.github.mikephil.charting.formatter.IFillFormatter
-import com.github.mikephil.charting.formatter.ValueFormatter
 import com.github.mikephil.charting.highlight.Highlight
-import com.github.mikephil.charting.interfaces.datasets.IBarDataSet
 import com.github.mikephil.charting.interfaces.datasets.ILineDataSet
 import com.github.mikephil.charting.listener.OnChartValueSelectedListener
+import com.github.mikephil.charting.utils.ColorTemplate
 import com.github.mikephil.charting.utils.Utils
 import theshaybi.androidinvertormonitor.R
-import theshaybi.androidinvertormonitor.classes.Fill
 import theshaybi.androidinvertormonitor.databinding.FirstScreenFragmentBinding
-import theshaybi.androidinvertormonitor.util.DayAxisValueFormatter
-import theshaybi.androidinvertormonitor.util.MyAxisValueFormatter
 import theshaybi.androidinvertormonitor.util.MyMarkerView
-import theshaybi.androidinvertormonitor.util.XYMarkerView
+
 
 class FirstScreenFragment : Fragment(), OnChartValueSelectedListener {
     private var mViewModel: FirstScreenViewModel? = null
     private var _binding: FirstScreenFragmentBinding? = null
     private var tfRegular: Typeface? = null
     private var tfLight: Typeface? = null
+
+    // variable for our bar data.
+    var barData: BarData? = null
+
+    // variable for our bar data set.
+    var barDataSet: BarDataSet? = null
+
+    // array list for storing entries.
+    private lateinit var barEntriesArrayList: ArrayList<BarEntry>
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         _binding = FirstScreenFragmentBinding.inflate(inflater, container, false)
@@ -56,8 +56,7 @@ class FirstScreenFragment : Fragment(), OnChartValueSelectedListener {
 
         // set listeners
         _binding?.lineChart?.setOnChartValueSelectedListener(this)
-        _binding?.barChart?.setOnChartValueSelectedListener(this)
-
+        _binding?.barChartFirst?.setOnChartValueSelectedListener(this)
 
         _binding?.apply {
             progressBar.progress = 50
@@ -257,122 +256,50 @@ class FirstScreenFragment : Fragment(), OnChartValueSelectedListener {
     private fun barChart() {
         try {
             _binding?.apply {
+                // calling method to get bar entries.
+                getBarEntries()
 
-                barChart.setDrawBarShadow(false)
-                barChart.setDrawValueAboveBar(true)
+                // creating a new bar data set.
+                barDataSet = BarDataSet(barEntriesArrayList, "Geeks for Geeks")
 
-                barChart.description.isEnabled = false
+                // creating a new bar data and
+                // passing our bar data set.
+                barData = BarData(barDataSet)
 
-                // if more than 60 entries are displayed in the chart, no values will be
-                // drawn
-                barChart.setMaxVisibleValueCount(60)
+                // below line is to set data
+                // to our bar chart.
+                barChartFirst.data = barData
 
-                // scaling can now only be done on x- and y-axis separately
-                barChart.setPinchZoom(false)
+                // adding color to our bar data set.
+                barDataSet!!.color = ColorTemplate.MATERIAL_COLORS[3]
+                // setting text color.
+                barDataSet!!.valueTextColor = Color.BLACK
 
-                barChart.setDrawGridBackground(false)
+                // setting text size
 
-                // chart.setDrawYLabels(false);
-                val xAxisFormatter: IAxisValueFormatter = DayAxisValueFormatter(barChart)
-
-                val xAxis: XAxis = barChart.xAxis
-                xAxis.position = XAxisPosition.BOTTOM
-                xAxis.typeface = tfLight
-                xAxis.setDrawGridLines(false)
-                xAxis.granularity = 1f // only intervals of 1 day
-
-                xAxis.labelCount = 7
-                xAxis.valueFormatter = xAxisFormatter as ValueFormatter?
-
-                val custom: IAxisValueFormatter = MyAxisValueFormatter()
-
-                val leftAxis: YAxis = barChart.axisLeft
-                leftAxis.typeface = tfLight
-                leftAxis.setLabelCount(8, false)
-                leftAxis.valueFormatter = custom as ValueFormatter?
-                leftAxis.setPosition(YAxisLabelPosition.OUTSIDE_CHART)
-                leftAxis.spaceTop = 15f
-                leftAxis.axisMinimum = 0f // this replaces setStartAtZero(true)
-
-                val rightAxis: YAxis = barChart.axisRight
-                rightAxis.setDrawGridLines(false)
-                rightAxis.typeface = tfLight
-                rightAxis.setLabelCount(8, false)
-                rightAxis.valueFormatter = custom
-                rightAxis.spaceTop = 15f
-                rightAxis.axisMinimum = 0f // this replaces setStartAtZero(true)
-
-                val l: Legend = barChart.legend
-                l.verticalAlignment = Legend.LegendVerticalAlignment.BOTTOM
-                l.horizontalAlignment = Legend.LegendHorizontalAlignment.LEFT
-                l.orientation = Legend.LegendOrientation.HORIZONTAL
-                l.setDrawInside(false)
-                l.form = LegendForm.SQUARE
-                l.formSize = 9f
-                l.textSize = 11f
-                l.xEntrySpace = 4f
-
-                val mv = XYMarkerView(requireActivity(), xAxisFormatter)
-                mv.chartView = barChart // For bounds control
-
-                barChart.marker = mv // Set the marker to the chart
-                // chart.setDrawLegend(false);
+                // setting text size
+                barDataSet!!.valueTextSize = 16f
+                barChartFirst.description.isEnabled = false
             }
-            setBarChartData(12, 50f)
+            //setBarChartData(12, 50f)
         } catch (e: Exception) {
             e.printStackTrace()
         }
     }
 
-    private fun setBarChartData(count: Int, range: Float) {
-        val start = 1f
-        val values = ArrayList<BarEntry>()
-        var i = start.toInt()
-        while (i < start + count) {
-            val tempVal = (Math.random() * (range + 1)).toFloat()
-            if (Math.random() * 100 < 25) {
-                values.add(BarEntry(i.toFloat(), tempVal, resources.getDrawable(R.drawable.star)))
-            } else {
-                values.add(BarEntry(i.toFloat(), tempVal))
-            }
-            i++
-        }
-        val set1: BarDataSet
-        if (_binding?.barChart?.data != null && _binding?.barChart?.data?.dataSetCount!! > 0) {
-            set1 = _binding?.barChart?.data?.getDataSetByIndex(0) as BarDataSet
-            set1.values = values
-            _binding?.barChart?.data?.notifyDataChanged()
-            _binding?.barChart?.notifyDataSetChanged()
-        } else {
-            set1 = BarDataSet(values, "The year 2017")
-            set1.setDrawIcons(false)
-            val startColor1 = ContextCompat.getColor(requireContext(), android.R.color.holo_orange_light)
-            val startColor2 = ContextCompat.getColor(requireContext(), android.R.color.holo_blue_light)
-            val startColor3 = ContextCompat.getColor(requireContext(), android.R.color.holo_orange_light)
-            val startColor4 = ContextCompat.getColor(requireContext(), android.R.color.holo_green_light)
-            val startColor5 = ContextCompat.getColor(requireContext(), android.R.color.holo_red_light)
-            val endColor1 = ContextCompat.getColor(requireContext(), android.R.color.holo_blue_dark)
-            val endColor2 = ContextCompat.getColor(requireContext(), android.R.color.holo_purple)
-            val endColor3 = ContextCompat.getColor(requireContext(), android.R.color.holo_green_dark)
-            val endColor4 = ContextCompat.getColor(requireContext(), android.R.color.holo_red_dark)
-            val endColor5 = ContextCompat.getColor(requireContext(), android.R.color.holo_orange_dark)
-            val gradientFills: MutableList<Fill> = java.util.ArrayList<Fill>()
-            gradientFills.add(Fill(startColor1, endColor1))
-            gradientFills.add(Fill(startColor2, endColor2))
-            gradientFills.add(Fill(startColor3, endColor3))
-            gradientFills.add(Fill(startColor4, endColor4))
-            gradientFills.add(Fill(startColor5, endColor5))
-            //set1.fills = gradientFills
-            val dataSets = java.util.ArrayList<IBarDataSet>()
-            dataSets.add(set1)
-            val data = BarData(dataSets)
-            data.setValueTextSize(10f)
-            data.setValueTypeface(tfLight)
-            data.barWidth = 0.9f
-            _binding?.barChart?.data = data
-        }
-    }
+    private fun getBarEntries() {
+        // creating a new array list
+        barEntriesArrayList = ArrayList()
 
+        // adding new entry to our array list with bar
+        // entry and passing x and y axis value to it.
+        barEntriesArrayList.add(BarEntry(1f, 4f))
+        barEntriesArrayList.add(BarEntry(2f, 6f))
+        barEntriesArrayList.add(BarEntry(3f, 8f))
+        barEntriesArrayList.add(BarEntry(4f, 2f))
+        barEntriesArrayList.add(BarEntry(5f, 4f))
+        barEntriesArrayList.add(BarEntry(6f, 1f))
+    }
 
     //https://github.com/Gruzer/simple-gauge-android
     private fun setHalfGuage() {
@@ -414,7 +341,6 @@ class FirstScreenFragment : Fragment(), OnChartValueSelectedListener {
         Log.i("LOW HIGH", "low: " + _binding?.lineChart?.lowestVisibleX + ", high: " + _binding?.lineChart?.highestVisibleX)
         Log.i("MIN MAX", "xMin: " + _binding?.lineChart?.xChartMin + ", xMax: " + _binding?.lineChart?.xChartMax + ", yMin: " + _binding?.lineChart?.yChartMin
                 + ", yMax: " + _binding?.lineChart?.yChartMax)
-
     }
 
     override fun onNothingSelected() {

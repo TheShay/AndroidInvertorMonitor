@@ -650,7 +650,7 @@
             android:textSize="@dimen/_15ssp" />
 
         <com.github.mikephil.charting.charts.BarChart
-            android:id="@+id/bar_chart"
+            android:id="@+id/bar_chart_second"
             android:layout_width="match_parent"
             android:layout_height="@dimen/_95sdp"
             android:background="@drawable/bar_chart_border" />
