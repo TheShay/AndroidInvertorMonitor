@@ -85,13 +85,21 @@ public class Common extends Application {
 //    }
 
     public static void enableBluetoothState() {
-        if (!mBluetoothAdapter.isEnabled())
-            mBluetoothAdapter.enable();
+        try {
+            if (!mBluetoothAdapter.isEnabled())
+                mBluetoothAdapter.enable();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public static void disableBluetoothState() {
-        if (mBluetoothAdapter.isEnabled())
-            mBluetoothAdapter.disable();
+        try {
+            if (mBluetoothAdapter.isEnabled())
+                mBluetoothAdapter.disable();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public static boolean isMyServiceRunning(Class<?> serviceClass) {

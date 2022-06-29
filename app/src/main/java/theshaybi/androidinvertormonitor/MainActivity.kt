@@ -16,6 +16,8 @@ import android.view.View
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.setupActionBarWithNavController
@@ -34,8 +36,7 @@ class MainActivity : AppCompatActivity() {
         const val REQUEST_DATA_USAGE = 2086
         private const val REQUEST_CHECK_SETTINGS = 5
         var isAppalreadyDownloaded = false
-        @JvmField
-        var downloadFile: DownloadFile? = null
+        @JvmField var downloadFile: DownloadFile? = null
         private const val REQUEST_EXTERNAL_STORAGE = 2092
         private val PERMISSIONS_STORAGE = arrayOf(
             Manifest.permission.READ_EXTERNAL_STORAGE,
@@ -45,6 +46,7 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var bluetoothDevice: BluetoothDevice
     private val REQUEST_CODE_LOC = 2091
+    private val REQUEST_CODE_BLUETOOTH = 10001
     val FIFTEEN_SECONDS: Long = 15000
     private val permissionrequired = Build.VERSION.SDK_INT >= Build.VERSION_CODES.M
     private var statusTimer: Timer? = null
@@ -117,7 +119,7 @@ class MainActivity : AppCompatActivity() {
         intentFilter.addAction(BluetoothDevice.ACTION_ACL_CONNECTED)
         intentFilter.addAction(BluetoothDevice.ACTION_ACL_DISCONNECTED)
         ReceiverManager.init(this).registerReceiver(bluetoothStateReceiver, intentFilter)
-        Common.enableBluetoothState()
+//        Common.enableBluetoothState()
 //        startBackseatListener()
 
         // Get the navigation host fragment from this Activity
@@ -254,6 +256,9 @@ class MainActivity : AppCompatActivity() {
             REQUEST_CODE_LOC -> if (grantResults.isNotEmpty()) for (gr in grantResults) {
                 if (gr != PackageManager.PERMISSION_GRANTED) accessLocationPermission()
             }
+            REQUEST_CODE_BLUETOOTH -> if (grantResults.isNotEmpty()) for (gr in grantResults) {
+                    enableBT()
+            }
             REQUEST_EXTERNAL_STORAGE -> {
                 if (grantResults.isNotEmpty())
                 //downloadNewVersionOfApp(appLink);
@@ -364,29 +369,28 @@ class MainActivity : AppCompatActivity() {
 //        }
 //    }
 
-    @RequiresApi(api = Build.VERSION_CODES.M)
     public override fun onResume() {
         super.onResume()
         Common.currentActivity = this
         Common.currentContext = this
         Common.isAppOnFront = true
-        //        currentCallbackListener = this;
-//        int writeStoragePermission = ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
-//        int locationPermission = ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
-//        boolean runtimePermisionGiven = (phoneStatePermission != PackageManager.PERMISSION_GRANTED || locationPermission != PackageManager.PERMISSION_GRANTED || writeStoragePermission != PackageManager.PERMISSION_GRANTED);
-//        if (permissionrequired && runtimePermisionGiven)
-//            accessLocationPermission();
-//        int phoneStatePermission = ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        enableBT()
 
-//        else if (permissionrequired && !Settings.canDrawOverlays(this)) {
-//            getOverDrawPermission();
-//        } else if (permissionrequired && !Settings.System.canWrite(this)) {
-//            getWriteSettingPermission();
-//        } else {
-//            queryUsageStats("");
-//            startServiceWithIcabbi(null);
-//        }
-        Common.enableBluetoothState()
+    }
+
+    private fun enableBT() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            when {
+                ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT) == PackageManager.PERMISSION_GRANTED -> {
+                    Common.enableBluetoothState()
+                }
+                else -> {
+                    requestPermissions(arrayOf(Manifest.permission.BLUETOOTH_CONNECT, Manifest.permission.BLUETOOTH_ADMIN), REQUEST_CODE_BLUETOOTH)
+                }
+            }
+        } else {
+            Common.enableBluetoothState()
+        }
     }
 
     public override fun onPause() {
